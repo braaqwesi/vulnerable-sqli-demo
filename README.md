@@ -113,19 +113,6 @@ DELETE FROM users WHERE email = '' OR 1=1 -- -'
    - Legal liability
    - Business reputation damage
 
-### **🛡️ Why This Matters for Security Training**
-
-This lab specifically demonstrates that **SQL injection severity depends on context**:
-- **Low severity**: SELECT-based injections (data exposure)
-- **High severity**: UPDATE-based injections (data corruption)  
-- **Critical severity**: DELETE-based injections (data destruction)
-
-Understanding this distinction is crucial for:
-- Risk assessment and prioritization
-- Incident response planning
-- Security awareness training
-- Vulnerability management
-
 ## Demo Steps
 
 ### **🎯 Learning Objective: Demonstrate SQL Injection Impact Escalation**
