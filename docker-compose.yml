@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: demo
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demopass
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./app/seed:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+  app:
+    build: ./app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app/public:/var/www/html
+      - ./app/logs:/var/log/app
+    depends_on:
+      - mysql
+volumes:
+  db_data:
+
