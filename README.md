@@ -23,6 +23,7 @@ A deliberately vulnerable PHP+MySQL web app to demonstrate SQL injection (auth b
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac/Linux)
 - Git (for cloning)
+- PowerPoint or compatible viewer (for presentation)
 
 ### Installation
 1. Clone this repository:
@@ -41,6 +42,11 @@ A deliberately vulnerable PHP+MySQL web app to demonstrate SQL injection (auth b
    - **phpMyAdmin**: [http://localhost:8081](http://localhost:8081) 
      - Username: `root`
      - Password: `rootpassword`
+
+### 📚 **Educational Materials**
+- **PowerPoint Presentation**: `Adam SQLi Preso.pptx` - Comprehensive slides covering SQL injection concepts, impact analysis, and mitigation strategies
+- **Interactive Demo**: Live vulnerable application for hands-on learning
+- **Documentation**: Detailed README with step-by-step instructions
 
 ## 🚨 **Critical SQL Injection Impact Analysis**
 
@@ -125,6 +131,11 @@ Understanding this distinction is crucial for:
 ### **🎯 Learning Objective: Demonstrate SQL Injection Impact Escalation**
 
 This demo shows how the same payload (`' OR 1=1 -- -`) escalates from "harmless" login bypass to catastrophic data destruction.
+
+### **📊 Recommended Demo Flow**
+1. **Start with Presentation**: Open `Adam SQLi Preso.pptx` to introduce concepts
+2. **Interactive Demo**: Follow the steps below for hands-on experience
+3. **Discussion**: Use presentation slides to reinforce key learning points
 
 #### **Step 1: Baseline - Normal Login**
 1. Login with `admin@example.com` / `adminpass` (normal flow)
