@@ -42,17 +42,115 @@ A deliberately vulnerable PHP+MySQL web app to demonstrate SQL injection (auth b
      - Username: `root`
      - Password: `rootpassword`
 
+## 🚨 **Critical SQL Injection Impact Analysis**
+
+### **Why `' OR 1=1 -- -` Has Different Impact Levels**
+
+This lab demonstrates a crucial security concept: **the same SQL injection payload has vastly different impacts depending on the SQL operation type**.
+
+#### **1. SELECT Statements (Login Bypass) - Limited Impact**
+```sql
+-- Original query:
+SELECT * FROM users WHERE email = 'user@example.com' AND password = 'password'
+
+-- With payload ' OR 1=1 -- -:
+SELECT * FROM users WHERE email = '' OR 1=1 -- -' AND password = 'password'
+```
+
+**Impact:** Authentication bypass only
+- ✅ **Read-only operation** - no data modification
+- ✅ **Limited damage** - just gains unauthorized access
+- ✅ **Recoverable** - can be fixed by proper authentication
+
+#### **2. UPDATE Statements (Mass Data Modification) - Severe Impact**
+```sql
+-- Original query:
+UPDATE users SET password = 'newpass' WHERE email = 'user@example.com'
+
+-- With payload ' OR 1=1 -- -:
+UPDATE users SET password = 'newpass' WHERE email = '' OR 1=1 -- -'
+```
+
+**Impact:** Mass data corruption
+- ❌ **Modifies ALL records** - every user's password changed
+- ❌ **Data integrity loss** - system becomes unusable
+- ❌ **Service disruption** - all users locked out
+- ❌ **Recovery required** - database restore needed
+
+#### **3. DELETE Statements (Data Destruction) - Catastrophic Impact**
+```sql
+-- Original query:
+DELETE FROM users WHERE email = 'user@example.com'
+
+-- With payload ' OR 1=1 -- -:
+DELETE FROM users WHERE email = '' OR 1=1 -- -'
+```
+
+**Impact:** Complete data loss
+- ❌ **Deletes ALL records** - entire user table wiped
+- ❌ **Business continuity loss** - application becomes unusable
+- ❌ **Data recovery required** - full database restore needed
+- ❌ **Potential legal/compliance issues** - data loss incidents
+
+### **🎯 Key Learning Points**
+
+1. **Same Payload, Different Consequences**: The `' OR 1=1 -- -` payload that seems "harmless" in login bypass becomes catastrophic in UPDATE/DELETE operations.
+
+2. **Operation Context Matters**: Always consider what SQL operation is being performed when assessing injection risk.
+
+3. **Defense in Depth**: Even if login bypass seems "limited," it provides the foothold needed to access destructive operations.
+
+4. **Real-World Impact**: In production systems, UPDATE/DELETE injections can cause:
+   - Complete service outages
+   - Data loss incidents
+   - Compliance violations (GDPR, SOX, PCI-DSS)
+   - Legal liability
+   - Business reputation damage
+
+### **🛡️ Why This Matters for Security Training**
+
+This lab specifically demonstrates that **SQL injection severity depends on context**:
+- **Low severity**: SELECT-based injections (data exposure)
+- **High severity**: UPDATE-based injections (data corruption)  
+- **Critical severity**: DELETE-based injections (data destruction)
+
+Understanding this distinction is crucial for:
+- Risk assessment and prioritization
+- Incident response planning
+- Security awareness training
+- Vulnerability management
+
 ## Demo Steps
-1. Login with `admin@example.com` / `adminpass` (normal flow).
-2. Show `app/logs/requests.log` for normal login entry.
-3. **Auth bypass:** In login form, use email: `' OR 1=1 -- ` or password: `' OR 1=1 -- ` → should log in as any user.
-4. **Mass update:** In dashboard, set email: `user1@example.com' OR 1=1 -- `, new password: `pwned` → all users' passwords change.
-5. **Mass delete:** In dashboard, set email: `user1@example.com' OR 1=1 -- ` in delete form → all users deleted.
-6. Use backup/restore scripts to reset DB:
-   ```sh
-   ./scripts/backup_db.sh
-   ./scripts/restore_db.sh
-   ```
+
+### **🎯 Learning Objective: Demonstrate SQL Injection Impact Escalation**
+
+This demo shows how the same payload (`' OR 1=1 -- -`) escalates from "harmless" login bypass to catastrophic data destruction.
+
+#### **Step 1: Baseline - Normal Login**
+1. Login with `admin@example.com` / `adminpass` (normal flow)
+2. Show `app/logs/requests.log` for normal login entry
+3. **Key Point**: Demonstrate legitimate access to admin functions
+
+#### **Step 2: Limited Impact - Authentication Bypass**
+3. **Auth bypass:** In login form, use email: `' OR 1=1 -- ` or password: `' OR 1=1 -- ` 
+4. **Result**: Logs in as admin user
+5. **Key Point**: Same payload, but SELECT operation = limited damage (read-only)
+
+#### **Step 3: Severe Impact - Mass Data Corruption**
+6. **Mass update:** In dashboard, set email: `user1@example.com' OR 1=1 -- `, new password: `pwned`
+7. **Result**: ALL users' passwords changed to "pwned"
+8. **Key Point**: Same payload, but UPDATE operation = severe damage (data corruption)
+9. **Demonstrate**: Try logging in with any user - all passwords are now "pwned"
+
+#### **Step 4: Catastrophic Impact - Complete Data Loss**
+10. **Mass delete:** In dashboard, set email: `user1@example.com' OR 1=1 -- ` in delete form
+11. **Result**: ALL users deleted from database
+12. **Key Point**: Same payload, but DELETE operation = catastrophic damage (data destruction)
+13. **Demonstrate**: Application becomes unusable - no users exist
+
+#### **Step 5: Recovery Demonstration**
+14. **Reset database:** Use "Reset DB" button to restore original data
+15. **Key Point**: Shows why database backups are critical for SQL injection recovery
 
 ## Backup & Restore
 - `scripts/backup_db.sh` — saves DB to `backup_demo.sql`
