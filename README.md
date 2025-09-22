@@ -46,13 +46,12 @@ A deliberately vulnerable PHP+MySQL web app to demonstrate SQL injection (auth b
 ### 📚 **Educational Materials**
 - **PowerPoint Presentation**: `Adam SQLi Preso.pptx` - Comprehensive slides covering SQL injection concepts, impact analysis, and mitigation strategies
 - **Interactive Demo**: Live vulnerable application for hands-on learning
-- **Documentation**: Detailed README with step-by-step instructions
 
 ## 🚨 **Critical SQL Injection Impact Analysis**
 
 ### **Why `' OR 1=1 -- -` Has Different Impact Levels**
 
-This lab demonstrates a crucial security concept: **the same SQL injection payload has vastly different impacts depending on the SQL operation type**.
+This lab demonstrates a crucial security concept: **the same SQL injection payload ' or 1=1 -- - has vastly different impacts depending on the SQL operation type**.
 
 #### **1. SELECT Statements (Login Bypass) - Limited Impact**
 ```sql
@@ -62,11 +61,6 @@ SELECT * FROM users WHERE email = 'user@example.com' AND password = 'password'
 -- With payload ' OR 1=1 -- -:
 SELECT * FROM users WHERE email = '' OR 1=1 -- -' AND password = 'password'
 ```
-
-**Impact:** Authentication bypass only
-- ✅ **Read-only operation** - no data modification
-- ✅ **Limited damage** - just gains unauthorized access
-- ✅ **Recoverable** - can be fixed by proper authentication
 
 #### **2. UPDATE Statements (Mass Data Modification) - Severe Impact**
 ```sql
@@ -155,22 +149,6 @@ This demo shows how the same payload (`' OR 1=1 -- -`) escalates from "harmless"
 - `scripts/restore_db.sh` — restores DB from `backup_demo.sql`
 - **Warning:** Restore will overwrite all data.
 
-## How to Clean Up
-- Stop containers: `docker-compose down`
-- Remove volumes: `docker-compose down -v`
-
-## How to Patch (Mitigation)
-- Replace string-concatenated SQL with prepared statements (see below):
-  ```php
-  // BAD (vulnerable):
-  $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
-  // GOOD (safe):
-  $stmt = $mysqli->prepare('SELECT * FROM users WHERE email = ? AND password = ?');
-  $stmt->bind_param('ss', $email, $password);
-  $stmt->execute();
-  ```
-- Hash passwords (bcrypt).
-- Use least-privilege DB accounts.
 
 ## File Structure
 - `app/public/` — PHP app (index.php, login.php, dashboard.php, update.php, delete.php)
